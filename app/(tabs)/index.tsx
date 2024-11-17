@@ -1,74 +1,134 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useState } from "react";
+import { AnimatePresence, Button, Input, Text, View, YStack } from "tamagui";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
+import { Platform } from "react-native";
+import { ChevronLeft, ChevronRight } from "@tamagui/lucide-icons";
 
 export default function HomeScreen() {
+  const [isVisible, setIsVisible] = useState(false);
+  const toggleView = () => {
+    setIsVisible(!isVisible);
+    const newValue = isVisible ? 100 : 0;
+  };
+  const [date, setDate] = useState<Date>(new Date());
+  const [mode, setMode] = useState<"date" | "time">("date");
+  const [show, setShow] = useState<boolean>(false);
+  const onChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date | undefined
+  ) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "ios");
+    setDate(currentDate);
+  };
+  const showMode = (currentMode: "date" | "time") => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <YStack
+      flex={1}
+      justifyContent="center"
+      alignItems="center"
+      backgroundColor={"lightblue"}
+    >
+      <YStack
+        position="absolute"
+        bottom={0}
+        width="100%"
+        height={"40%"}
+        backgroundColor="#ffffff"
+        borderTopLeftRadius={"10%"}
+        borderTopRightRadius={"10%"}
+        paddingTop={"10%"}
+        paddingLeft={12}
+        paddingRight={12}
+      >
+        <YStack gap={12}>
+          <Text fontSize={20} fontWeight={"bold"}>
+            Set Your Route
+          </Text>
+          <View flexDirection="column" gap={4}>
+            <Text flexShrink={1} fontWeight={"bold"}>
+              Select a Date&Time
+            </Text>
+            <View display="flex" flexDirection="row">
+              <Button onPress={() => showMode("date")} height={32}>
+                <Text>{date.toDateString()}</Text>
+              </Button>
+              <Button onPress={() => showMode("time")} height={32}>
+                <Text>{date.toLocaleTimeString()}</Text>
+              </Button>
+            </View>
+          </View>
+          <View flexDirection="column" gap={4}>
+            <Text flexShrink={1} fontWeight={"bold"}>
+              Starting Point
+            </Text>
+          </View>
+          <View flexDirection="column" gap={4}>
+            <Text flexShrink={1} fontWeight={"bold"}>
+              Ending Point
+            </Text>
+          </View>
+          <View flexDirection="column" gap={4}>
+            <Text flexShrink={1} fontWeight={"bold"}>
+              Available Seats
+            </Text>
+            <View
+              flexDirection="row"
+              display="flex"
+              width={64}
+              alignItems="center"
+            >
+              <Button
+                icon={<ChevronLeft size={"$1"} />}
+                flexShrink={1}
+                width={4}
+              ></Button>
+              <View
+                backgroundColor={"#eee"}
+                width={"$3"}
+                height={"$3"}
+                borderRadius={10}
+                justifyContent="center"
+                alignItems="center"
+                alignContent="center"
+              >
+                <Text>{1}</Text>
+              </View>
+              <Button
+                icon={<ChevronRight size={"$1"} />}
+                flexShrink={1}
+                width={4}
+              ></Button>
+            </View>
+          </View>
+        </YStack>
+        {show && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={mode}
+            is24Hour={true}
+            display="default"
+            onChange={onChange}
+          />
+        )}
+        <Button
+          position="absolute"
+          bottom={0}
+          right={0}
+          margin={9}
+          borderColor={"black"}
+          borderWidth={2}
+        >
+          <Text fontWeight="bold">Confirm</Text>
+        </Button>
+      </YStack>
+    </YStack>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
